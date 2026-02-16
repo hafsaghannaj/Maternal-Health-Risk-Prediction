@@ -5,9 +5,32 @@ from app.api.data_routes import data_bp
 from config import config
 
 
+from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_talisman import Talisman
+
 def create_app():
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = config.SECRET_KEY
+    app.config['JWT_SECRET_KEY'] = config.JWT_SECRET_KEY
+    
     CORS(app)  # Enable CORS for all routes
+    
+    # Initialize JWT
+    jwt = JWTManager(app)
+    
+    # Initialize Security Headers (Talisman)
+    # Disable force_https for local development
+    Talisman(app, force_https=False, content_security_policy=None)
+    
+    # Initialize Rate Limiting
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=[config.RATELIMIT_DEFAULT],
+        storage_uri="memory://",
+    )
 
     # Register blueprints
     app.register_blueprint(api_bp)

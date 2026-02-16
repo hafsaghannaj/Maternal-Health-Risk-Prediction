@@ -143,7 +143,10 @@ def get_cdc_benchmark():
     
     return jsonify({"error": "Unsupported dataset"}), 400
 
+from flask_jwt_extended import jwt_required
+
 @data_bp.route('/data/calibrate', methods=['POST'])
+@jwt_required()
 def trigger_calibration():
     is_sync = request.args.get('sync', 'false').lower() == 'true'
     

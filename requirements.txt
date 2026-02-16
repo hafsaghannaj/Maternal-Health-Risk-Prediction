@@ -10,3 +10,7 @@ scipy>=1.7.0
 pydantic>=1.9.0
 celery>=5.2.0
 requests>=2.25.0
+flask-jwt-extended
+flask-limiter
+flask-talisman
+python-dotenv

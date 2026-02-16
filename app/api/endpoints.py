@@ -17,12 +17,24 @@ from app.federated_learning.coordinator import FederatedLearningCoordinator
 from app.federated_learning.hospital_node import HospitalNode
 from config import config
 
+from flask_jwt_extended import jwt_required, create_access_token
+from app.api.data_routes import run_async
+
 api_bp = Blueprint('api', __name__)
 
 # Global variables to store the coordinator
 coordinator = None
 
 init_db()
+
+@api_bp.route('/auth/login', methods=['POST'])
+def login():
+    """Secure login to get JWT token using ADMIN_API_KEY"""
+    api_key = request.json.get('api_key')
+    if api_key == config.ADMIN_API_KEY:
+        access_token = create_access_token(identity="admin")
+        return jsonify(access_token=access_token), 200
+    return jsonify({"msg": "Unauthorized: Invalid API Key"}), 401
 
 @api_bp.route('/', methods=['GET'])
 def health_check():
@@ -1045,6 +1057,7 @@ def get_latest_model():
     })
 
 @api_bp.route('/api/model/download/<int:version>', methods=['GET'])
+@jwt_required()
 def download_model(version):
     """Download a specific model version."""
     model_info = get_model_version(version)
@@ -1062,6 +1075,7 @@ def download_model(version):
     return send_file(model_path, as_attachment=True, download_name=os.path.basename(model_path))
 
 @api_bp.route('/api/initialize', methods=['POST'])
+@jwt_required()
 def initialize_federated_learning():
     """Initialize the federated learning system with synthetic data"""
     global coordinator
@@ -1123,6 +1137,7 @@ def initialize_federated_learning():
         }), 500
 
 @api_bp.route('/api/train', methods=['POST'])
+@jwt_required()
 def train_federated_model():
     """Run federated training for specified number of rounds"""
     global coordinator

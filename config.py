@@ -1,8 +1,17 @@
 import os
 import torch
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
+    # Security settings
+    SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "dev-secret-key-12345")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-key-12345")
+    ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "artemis_admin_key")
+    RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "200 per day;50 per hour")
 
     # Data settings
     NUM_HOSPITALS = 3
