@@ -18,12 +18,42 @@ def run_async(coro):
 @data_bp.route('/benchmarks/ahr', methods=['GET'])
 def get_ahr_benchmark():
     measure = request.args.get('measure')
+    dataset = request.args.get('dataset')
     state = request.args.get('state')
     
-    if not measure:
-        return jsonify({"error": "Missing measure parameter"}), 400
-        
     client = AHRClient()
+    
+    if dataset == 'morbidity':
+        measures = [
+            'Severe Maternal Morbidity',
+            'Low Birthweight',
+            'Preterm Birth',
+            'Early Antenatal Care',
+            'Maternal Education',
+            'Prenatal Care'
+        ]
+        all_results = []
+        for m in measures:
+            try:
+                res = run_async(client.get_measure_by_state(m))
+                # Search for national level data or take average
+                national = next((r.dict() for r in res if r.state in ["United States", "US"]), None)
+                if not national and res:
+                    # Fallback to mean if no US entry
+                    vals = [float(r.value) for r in res if r.value is not None]
+                    mean_val = sum(vals) / len(vals) if vals else 0
+                    national = {"state": "US Average", "value": mean_val, "measure": m}
+                
+                if national:
+                    national['measure'] = m # Ensure it has the measure name
+                    all_results.append(national)
+            except:
+                continue
+        return jsonify(all_results)
+        
+    if not measure:
+        return jsonify({"error": "Missing measure or dataset parameter"}), 400
+        
     results = run_async(client.get_measure_by_state(measure))
     
     if state:
