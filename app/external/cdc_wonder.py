@@ -16,7 +16,7 @@ class CDCWonderXMLBuilder:
         self.dataset_id = dataset_id
         self.groups = []
         self.filters = {}
-        self.measures = []
+        self._measures = []
 
     def group_by(self, fields: List[str]):
         self.groups = fields
@@ -30,19 +30,19 @@ class CDCWonderXMLBuilder:
                 self.filters[key] = [value]
         return self
 
-    def measures(self, measures: List[str]):
-        self.measures = measures
+    def set_measures(self, measures: List[str]):
+        self._measures = measures
         return self
 
     def build(self) -> str:
         root = ET.Element("request-parameters")
         
         # Identification
-        # Note: Some datasets need specific parameters like 'accept_datause_restrictions'
-        ET.SubElement(root, "parameter").extend([
-            ET.Element("name", text="accept_datause_restrictions"),
-            ET.Element("value", text="true")
-        ])
+        param = ET.SubElement(root, "parameter")
+        name_el = ET.SubElement(param, "name")
+        name_el.text = "accept_datause_restrictions"
+        value_el = ET.SubElement(param, "value")
+        value_el.text = "true"
 
         # Group By
         for i, group in enumerate(self.groups, 1):
@@ -58,7 +58,7 @@ class CDCWonderXMLBuilder:
                 ET.SubElement(param, "value").text = val
 
         # Measures
-        for measure in self.measures:
+        for measure in self._measures:
             param = ET.SubElement(root, "parameter")
             ET.SubElement(param, "name").text = f"M_{measure}"
             ET.SubElement(param, "value").text = "true"
@@ -124,28 +124,28 @@ class CDCWonderClient:
         builder.group_by(["D149.V10", "D149.V1"]) # State, Year
         builder.filter(year=year_range)
         builder.filter(maternal_morbidity=morbidity_type)
-        builder.measures(["D149.M1", "D149.M3"]) # Births, Percent
+        builder.set_measures(["D149.M1", "D149.M3"]) # Births, Percent
         return await self._query("D149", builder.build())
 
     async def get_birth_demographics(self, year_range: List[str], group_by: List[str]):
         builder = CDCWonderXMLBuilder(dataset_id="D66")
         builder.group_by(group_by)
         builder.filter(year=year_range)
-        builder.measures(["Births"])
+        builder.set_measures(["Births"])
         return await self._query("D66", builder.build())
 
     async def get_maternal_mortality_rates(self, year_range: List[str]):
         builder = CDCWonderXMLBuilder(dataset_id="D76")
         builder.group_by(["D76.V1", "D76.V8"]) # Year, Race
         builder.filter(year=year_range)
-        builder.measures(["Deaths", "Crude Rate"])
+        builder.set_measures(["Deaths", "Crude Rate"])
         return await self._query("D76", builder.build())
 
     async def get_risk_factor_distributions(self, year_range: List[str], risk_factor: str):
         builder = CDCWonderXMLBuilder(dataset_id="D149")
         builder.group_by(["D149.V1", risk_factor])
         builder.filter(year=year_range)
-        builder.measures(["Births"])
+        builder.set_measures(["Births"])
         return await self._query("D149", builder.build())
 
 class CDCWonderCSVLoader:
