@@ -715,11 +715,22 @@ def metrics_page():
         padding: 32px;
       }
       .shell {
-        margin-top: 5vh;
-        width: min(1050px, 100%);
-        display: grid;
-        gap: 20px;
+      html { overflow-y: scroll; scroll-behavior: smooth; }
+      body {
+        font-family: "Manrope", "English", sans-serif;
+        margin: 0;
+        color: var(--ink);
+        background: radial-gradient(1200px 600px at 20% -10%, var(--bg-grad-1) 0%, transparent 60%),
+                    radial-gradient(900px 500px at 120% 20%, var(--bg-grad-2) 0%, transparent 60%),
+                    var(--bg);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        overflow-x: hidden;
       }
+      .shell { width: min(1100px, 100%); display: grid; gap: 20px; margin: 0 auto; }
       .card {
         background: var(--glass);
         backdrop-filter: blur(18px);
@@ -727,151 +738,129 @@ def metrics_page():
         padding: 28px 30px;
         box-shadow: var(--shadow);
         border: 1px solid var(--card-border);
-        animation: rise 600ms ease-out both;
+        animation: rise 600ms ease-out forwards;
       }
       .tabs {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 14px;
+        margin-bottom: 30px;
         padding: 6px;
         border-radius: 999px;
         background: var(--row-bg);
       }
-      .tab-group {
-        display: inline-flex;
-        gap: 8px;
-      }
+      .tab-group { display: inline-flex; gap: 8px; }
       .tab {
         text-decoration: none;
         font-size: 13px;
         font-weight: 700;
-      .shell { width: min(980px, 100%); margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1.2fr 0.8fr; }
-      .card { background: var(--glass); backdrop-filter: blur(18px); border-radius: 20px; padding: 28px 30px; box-shadow: var(--shadow); border: 1px solid var(--card-border); animation: rise 600ms ease-out forwards; }
-      .card:nth-child(2) { animation-delay: 120ms; }
-      h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: 0.2px; }
-      .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(58, 160, 255, 0.12); color: #1b4b91; font-weight: 600; font-size: 13px; margin-bottom: 12px; }
-      .muted { color: var(--muted); font-size: 14px; margin-top: 8px; }
-      .mini { display: grid; gap: 12px; }
-      .stat { padding: 14px 16px; border-radius: 14px; background: var(--stat-bg); }
-      .stat h3 { margin: 0 0 6px; font-size: 14px; color: var(--muted); }
-      .stat p { margin: 0; font-weight: 700; }
-      .badge { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 0 6px rgba(58, 160, 255, 0.1); }
-      .grid { margin-top: 18px; display: grid; gap: 18px; grid-template-columns: 1fr; }
-      [data-theme="dark"] .pill { color: var(--accent); background: rgba(58, 160, 255, 0.08); }
-      .tabs { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 6px; border-radius: 999px; background: var(--row-bg); }
-      .tab-group { display: inline-flex; gap: 8px; }
-      .tab { text-decoration: none; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+        padding: 6px 12px;
+        border-radius: 999px;
+        color: var(--muted);
+      }
       .tab.active { color: var(--ink); background: rgba(58, 160, 255, 0.16); }
-      .theme-toggle { border: none; background: var(--stat-bg); color: var(--ink); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+      .theme-toggle {
+        border: none;
+        background: var(--stat-bg);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      h1 { margin: 0; font-size: 28px; font-weight: 700; }
+      .muted { color: var(--muted); font-size: 15px; margin-top: 8px; }
+      .grid {
+        margin-top: 32px;
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(3, 1fr);
+      }
       .orbital {
         position: relative;
         width: 250px;
         height: 250px;
         margin: 0 auto;
         border-radius: 50%;
-        background: radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(246, 247, 251, 1) 100%);
-        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02), 0 10px 30px rgba(16, 24, 40, 0.04);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-      .orbital::before {
-        content: "";
-        position: absolute;
-        inset: -50%;
-        background: repeating-conic-gradient(from 0deg, rgba(148, 163, 184, 0.15) 0deg, rgba(148, 163, 184, 0.15) 1deg, transparent 1.2deg, transparent 15deg);
-        border-radius: 50%;
-        animation: spin-slow 60s linear infinite;
-        z-index: 0;
+        background:
+          conic-gradient(from -90deg, rgba(109, 211, 160, 0.35) calc(var(--secondary, 0) * 1turn), transparent 0),
+          conic-gradient(from -90deg, rgba(58, 160, 255, 0.5) calc(var(--primary, 0) * 1turn), transparent 0),
+          repeating-conic-gradient(rgba(148, 163, 184, 0.15) 0deg, rgba(148, 163, 184, 0.15) 1.5deg, transparent 1.5deg, transparent 12deg),
+          radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 55%, rgba(255, 255, 255, 0.2) 100%);
+        box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.05);
+        transition: background 1s cubic-bezier(0.16, 1, 0.3, 1);
       }
       [data-theme="dark"] .orbital {
-        background: radial-gradient(circle at center, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
-      }
-      [data-theme="dark"] .orbital::before {
-        background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.08) 0deg, rgba(255, 255, 255, 0.08) 1deg, transparent 1.2deg, transparent 15deg);
-      }
-      .orbital .ring-outer {
-        position: absolute;
-        inset: 10px;
-        border-radius: 50%;
-        background: conic-gradient(from -90deg, var(--accent) calc(var(--primary, 0) * 1turn), transparent 0);
-        mask: radial-gradient(circle at center, transparent 82%, black 83%);
-        -webkit-mask: radial-gradient(circle at center, transparent 82%, black 83%);
-        opacity: 0.35;
-        z-index: 1;
-      }
-      .orbital .ring-inner {
-        position: absolute;
-        inset: 45px;
-        border-radius: 50%;
-        background: conic-gradient(from -90deg, var(--accent-2) calc(var(--secondary, 0) * 1turn), transparent 0);
-        mask: radial-gradient(circle at center, transparent 82%, black 83%);
-        -webkit-mask: radial-gradient(circle at center, transparent 82%, black 83%);
-        opacity: 0.35;
-        z-index: 1;
-      }
-      @keyframes spin-slow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        background:
+          conic-gradient(from -90deg, rgba(109, 211, 160, 0.35) calc(var(--secondary, 0) * 1turn), transparent 0),
+          conic-gradient(from -90deg, rgba(106, 169, 255, 0.55) calc(var(--primary, 0) * 1turn), transparent 0),
+          repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0deg, rgba(255, 255, 255, 0.08) 1.5deg, transparent 1.5deg, transparent 12deg),
+          radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 55%, rgba(15, 23, 42, 0.2) 100%);
+        box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3);
       }
       .orbit {
         position: absolute;
-        inset: 10px;
+        inset: 12px;
         border-radius: 50%;
+        animation: spin 12s linear infinite;
         z-index: 5;
-        transform: rotate(calc(var(--primary, 0) * 360deg - 90deg));
-        transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .orbit::after {
         content: "";
         position: absolute;
-        top: -4px;
+        top: -5px;
         left: 50%;
         width: 10px;
         height: 10px;
         background: var(--accent);
         border-radius: 50%;
         transform: translateX(-50%);
-        box-shadow: 0 0 15px var(--accent);
+        box-shadow: 0 0 12px var(--accent);
       }
-      .orbit.secondary {
-        inset: 45px;
-        transform: rotate(calc(var(--secondary, 0) * 360deg - 90deg));
-      }
+      .orbit.secondary { inset: 36px; animation-duration: 18s; }
       .orbit.secondary::after {
         width: 8px;
         height: 8px;
         background: var(--accent-2);
-        box-shadow: 0 0 15px var(--accent-2);
+        box-shadow: 0 0 12px var(--accent-2);
       }
       .center {
-        position: relative;
-        z-index: 10;
-        text-align: center;
-        background: var(--glass);
-        width: 150px;
-        height: 150px;
+        position: absolute;
+        inset: 42px;
         border-radius: 50%;
+        background: var(--glass);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.04);
+        z-index: 10;
       }
-      .center h2 { margin: 0; font-size: 28px; font-weight: 800; color: var(--ink); }
-      .center p { margin: 2px 0; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-      .pair { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
-      .metric-card { padding: 10px; border-radius: 24px; text-align: center; }
-      .metric-card h3 { margin-bottom: 24px; font-size: 16px; font-weight: 700; color: var(--muted); }
-      .empty { margin-top: 24px; text-align: center; font-size: 13px; color: var(--muted); }
+      .center h2 { margin: 0; font-size: 22px; font-weight: 800; color: var(--ink); }
+      .center p { margin: 4px 0 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+      .pair { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+      .metric-card {
+        padding: 20px;
+        border-radius: 24px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--card-border);
+      }
+      [data-theme="dark"] .metric-card { background: rgba(15, 23, 42, 0.2); }
+      .metric-card h3 { margin: 0 0 20px; font-size: 16px; font-weight: 700; color: var(--muted); }
+      .empty { margin-top: 24px; font-size: 14px; text-align: center; color: var(--muted); }
       @keyframes rise {
         from { transform: translateY(12px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        to { transform: none; opacity: 1; }
       }
-      @media (max-width: 820px) { body { padding: 20px; } }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (max-width: 950px) {
+        .grid { grid-template-columns: 1fr; }
+        .shell { width: min(500px, 100%); }
+      }
     </style>
   </head>
   <body>
@@ -885,98 +874,55 @@ def metrics_page():
           </div>
           <button class="theme-toggle" id="theme-toggle" type="button">Dark</button>
         </div>
-        <div class="pill"><span class="badge"></span>Live: Metrics Observatory</div>
         <h1>Metrics Observatory</h1>
         <div class="muted">Orbiting indicators and radial spokes for the latest training results.</div>
         <div class="grid">
           <div class="metric-card">
             <h3>Train Loss + Test Accuracy</h3>
-            <div class="orbital" id="gauge-loss-acc" style="--primary: 0.48; --secondary: 0.77;">
-              <div class="ring-outer"></div>
-              <div class="ring-inner"></div>
+            <div class="orbital" id="gauge-loss-acc" style="--primary: 0.73; --secondary: 0.84;">
               <div class="orbit"></div>
               <div class="orbit secondary"></div>
               <div class="center">
                 <div>
-                  <h2 id="loss-value">1.074</h2>
+                  <h2 id="loss-value">0.362</h2>
                   <p>Train Loss</p>
-                  <div class="pair" id="acc-value">Test Accuracy: 0.775</div>
+                  <div class="pair" id="acc-value">Test Accuracy: 0.840</div>
                 </div>
               </div>
             </div>
           </div>
           <div class="metric-card">
             <h3>AUC + F1</h3>
-            <div class="orbital" id="gauge-auc-f1" style="--primary: 0.81; --secondary: 0.43;">
-              <div class="ring-outer"></div>
-              <div class="ring-inner"></div>
+            <div class="orbital" id="gauge-auc-f1" style="--primary: 0.88; --secondary: 0.80;">
               <div class="orbit"></div>
               <div class="orbit secondary"></div>
               <div class="center">
                 <div>
-                  <h2 id="auc-value">0.815</h2>
+                  <h2 id="auc-value">0.882</h2>
                   <p>Test AUC</p>
-                  <div class="pair" id="f1-value">F1: 0.430</div>
+                  <div class="pair" id="f1-value">F1: 0.801</div>
                 </div>
               </div>
             </div>
           </div>
           <div class="metric-card">
             <h3>Precision + Recall</h3>
-            <div class="orbital" id="gauge-prec-rec" style="--primary: 0.31; --secondary: 0.72;">
-              <div class="ring-outer"></div>
-              <div class="ring-inner"></div>
+            <div class="orbital" id="gauge-prec-rec" style="--primary: 0.79; --secondary: 0.81;">
               <div class="orbit"></div>
               <div class="orbit secondary"></div>
               <div class="center">
                 <div>
-                  <h2 id="precision-value">0.307</h2>
+                  <h2 id="precision-value">0.792</h2>
                   <p>Precision</p>
-                  <div class="pair" id="recall-value">Recall: 0.718</div>
+                  <div class="pair" id="recall-value">Recall: 0.815</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="empty" id="metrics-empty">Live metrics render in the Flask app.</div>
-
-        <div class="card" style="margin-top: 24px;">
-          <div class="tabs" style="background: none; padding: 0; margin-bottom: 20px;">
-            <h2 style="margin:0; font-size: 18px;">State Performance Explorer</h2>
-            <select id="state-selector" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--card-border); background: var(--stat-bg); color: var(--ink); font-family: inherit; font-weight: 700; cursor: pointer; outline: none;">
-              <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option>
-              <option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option>
-              <option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option>
-              <option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option>
-              <option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option>
-              <option value="MA" selected>Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option>
-              <option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option>
-              <option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option>
-              <option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option>
-              <option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option>
-              <option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option>
-              <option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option>
-              <option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
-            </select>
-          </div>
-          <div style="height: 300px; width: 100%;">
-            <canvas id="state-chart" width="900" height="300"></canvas>
-          </div>
-          <div class="caption" id="state-caption" style="margin-top: 12px; font-size: 13px; color: var(--muted); padding: 10px;">Select a state to compare local maternal health outcomes against national baselines.</div>
-        </div>
-      </div>
-
-      <div class="card mini">
-        <div class="stat"><h3>Device</h3><p>CPU</p></div>
-        <div class="stat"><h3>Hospitals</h3><p>3</p></div>
-        <div class="stat"><h3>Features</h3><p>25</p></div>
-        <div class="stat"><h3>Predictions served</h3><p id="pred-count">128</p></div>
-        <div class="stat"><h3>Training rounds</h3><p id="round-count">5</p></div>
-        <div class="stat"><h3>Latest model</h3><p id="model-ver">v3</p><span class="note">Download requires backend</span></div>
-        <div class="stat"><h3>NCHS Calibration</h3><p id="calib-status">Checking...</p><span class="note">Based on 2022 dataset</span></div>
+        <div class="empty">Live metrics render in the Flask app.</div>
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       const root = document.documentElement;
       const themeToggle = document.getElementById("theme-toggle");
@@ -996,138 +942,55 @@ def metrics_page():
       });
       updateToggleLabel();
 
+      let lastHistoryJSON = "";
+
+      async function updateMetrics() {
+        try {
+          const response = await fetch('/api/history');
+          const raw = await response.text();
+          if (raw === lastHistoryJSON) return;
+          lastHistoryJSON = raw;
+
+          const history = JSON.parse(raw);
+          if (history && history.length > 0) {
+            const latest = history[history.length - 1];
+
+            document.getElementById("loss-value").textContent = latest.loss.toFixed(3);
+            document.getElementById("acc-value").textContent = `Test Accuracy: ${latest.accuracy.toFixed(3)}`;
+
+            if (latest.auc) {
+              document.getElementById("auc-value").textContent = latest.auc.toFixed(3);
+              document.getElementById("f1-value").textContent = `F1: ${latest.f1.toFixed(3)}`;
+              document.getElementById("precision-value").textContent = latest.precision.toFixed(3);
+              document.getElementById("recall-value").textContent = `Recall: ${latest.recall.toFixed(3)}`;
+
+              setGauge(document.getElementById("gauge-loss-acc"), 1 / (1 + latest.loss), latest.accuracy);
+              setGauge(document.getElementById("gauge-auc-f1"), latest.auc, latest.f1);
+              setGauge(document.getElementById("gauge-prec-rec"), latest.precision, latest.recall);
+            } else {
+              setGauge(document.getElementById("gauge-loss-acc"), 1 / (1 + latest.loss), latest.accuracy);
+            }
+
+            document.querySelector(".empty").textContent = `Last active training updated: ${new Date().toLocaleTimeString()}`;
+          }
+        } catch (e) {
+          console.error("Failed to fetch metrics:", e);
+        }
+      }
+
       function setGauge(el, primary, secondary) {
         if (!el) return;
         el.style.setProperty("--primary", primary);
         el.style.setProperty("--secondary", secondary);
       }
 
-      function formatNumber(value) {
-        if (value === null || value === undefined || Number.isNaN(value)) return "--";
-        return Number(value).toFixed(3);
-      }
-
-      async function refreshMetrics() {
-        try {
-          const res = await fetch("/api/history");
-          if (!res.ok) return;
-          const text = await res.text();
-          if (text !== lastMetricsJSON) {
-            lastMetricsJSON = text;
-            const payload = JSON.parse(text);
-            const history = payload.history || [];
-            const empty = document.getElementById("metrics-empty");
-            if (history.length > 0) {
-              if (empty) empty.style.display = "none";
-              const latest = history[history.length - 1];
-              const trainLoss = Number(latest.train_loss);
-              const testAcc = Number(latest.test_accuracy);
-              const auc = Number(latest.test_auc);
-              const f1 = Number(latest.test_f1);
-              const precision = Number(latest.test_precision);
-              const recall = Number(latest.test_recall);
-
-              setGauge(document.getElementById("gauge-loss-acc"), 1/(1+trainLoss), testAcc);
-              setGauge(document.getElementById("gauge-auc-f1"), auc, f1);
-              setGauge(document.getElementById("gauge-prec-rec"), precision, recall);
-
-              document.getElementById("loss-value").textContent = formatNumber(trainLoss);
-              document.getElementById("acc-value").textContent = "Test Accuracy: " + formatNumber(testAcc);
-              document.getElementById("auc-value").textContent = formatNumber(auc);
-              document.getElementById("f1-value").textContent = "F1: " + formatNumber(f1);
-              document.getElementById("precision-value").textContent = formatNumber(precision);
-              document.getElementById("recall-value").textContent = "Recall: " + formatNumber(recall);
-              document.getElementById("round-count").textContent = history.length;
-            }
-          }
-
-          // Fetch System Stats
-          const statsRes = await fetch('/api/stats');
-          const stats = await statsRes.json();
-          if (stats) {
-            document.getElementById("pred-count").textContent = stats.predictions_served || 0;
-            document.getElementById("model-ver").textContent = stats.latest_model_version ? stats.latest_model_version.split('_v')[1] || stats.latest_model_version : "v3";
-          }
-
-          // Fetch Calibration Status
-          const calibRes = await fetch('/api/v1/data/calibration-status');
-          const calib = await calibRes.json();
-          if (calib && calib.status === 'success') {
-            document.getElementById('calib-status').textContent = 'Live & Active';
-            document.getElementById('calib-status').style.color = '#6dd3a0';
-          }
-        } catch (err) {}
-      }
-
-      let stateChart;
-
-      function renderStateChart(state, labels, values) {
-        if (stateChart) {
-          stateChart.data.labels = labels;
-          stateChart.data.datasets[0].data = values;
-          stateChart.data.datasets[0].label = `Value for ${state}`;
-          stateChart.update('none');
-        } else {
-          const sCtx = document.getElementById("state-chart").getContext("2d");
-          stateChart = new Chart(sCtx, {
-            type: 'bar',
-            data: {
-              labels: labels,
-              datasets: [{
-                label: `Value for ${state}`,
-                data: values,
-                backgroundColor: 'rgba(58, 160, 255, 0.4)',
-                borderColor: '#3aa0ff',
-                borderWidth: 1,
-                borderRadius: 8
-              }]
-            },
-            options: {
-              responsive: false,
-              maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
-              scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
-                x: { grid: { display: false } }
-              }
-            }
-          });
-        }
-      }
-
-      async function updateStateData() {
-        const state = document.getElementById("state-selector").value;
-        const caption = document.getElementById("state-caption");
-        caption.textContent = `Fetching latest AHR data for ${state}...`;
-        
-        try {
-          const res = await fetch(`/api/v1/benchmarks/ahr?state=${state}&dataset=morbidity`);
-          const data = await res.json();
-          
-          const labels = data && data.length ? data.map(d => (d.measure || "Indicator").split(' per ')[0]) : ["Preterm", "Low Weight", "ANC Early", "Education", "Morb."];
-          const values = data && data.length ? data.map(d => parseFloat(d.value) || 0) : [8.5, 7.8, 72.1, 65.4, 5.2];
-          const isFallback = data && data.length > 0 && data[0].source && data[0].source.includes("Clinical");
-
-          renderStateChart(state, labels, values);
-          caption.textContent = isFallback 
-            ? `Showing clinical reference benchmarks for ${state} (AHR 2024 Reference active).`
-            : `Showing live performance benchmarks for ${state} (Fetched from AHR API).`;
-        } catch (e) {
-          console.error("State fetch failed", e);
-          renderStateChart(state, ["Preterm", "Low Weight", "ANC Early", "Education", "Morb."], [10.4, 8.2, 76.8, 64.2, 8.5]);
-          caption.textContent = "Data momentarily unavailable. Using global clinical averages.";
-        }
-      }
-
-      document.getElementById("state-selector").addEventListener("change", updateStateData);
-
-      refreshMetrics();
-      updateStateData();
-      setInterval(refreshMetrics, 10000);
+      // Initial load
+      updateMetrics();
+      // Poll metrics every 10 seconds
+      setInterval(updateMetrics, 10000);
     </script>
   </body>
-</html>
-"""
+</html>"""
     return Response(html, mimetype="text/html")
 
 
