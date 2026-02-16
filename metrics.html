@@ -247,15 +247,52 @@
       });
       updateToggleLabel();
 
+      async function updateMetrics() {
+        try {
+          const response = await fetch('/api/history');
+          const history = await response.json();
+          
+          if (history && history.length > 0) {
+            const latest = history[history.length - 1];
+            
+            // Map values to display
+            document.getElementById("loss-value").textContent = latest.loss.toFixed(3);
+            document.getElementById("acc-value").textContent = `Test Accuracy: ${latest.accuracy.toFixed(3)}`;
+            
+            // If AUC/F1/Prec/Rec are available in history
+            if (latest.auc) {
+              document.getElementById("auc-value").textContent = latest.auc.toFixed(3);
+              document.getElementById("f1-value").textContent = `F1: ${latest.f1.toFixed(3)}`;
+              document.getElementById("precision-value").textContent = latest.precision.toFixed(3);
+              document.getElementById("recall-value").textContent = `Recall: ${latest.recall.toFixed(3)}`;
+              
+              setGauge(document.getElementById("gauge-loss-acc"), latest.loss, latest.accuracy);
+              setGauge(document.getElementById("gauge-auc-f1"), latest.auc, latest.f1);
+              setGauge(document.getElementById("gauge-prec-rec"), latest.precision, latest.recall);
+            } else {
+              // Fallback if only loss/acc are present
+              setGauge(document.getElementById("gauge-loss-acc"), Math.min(1, latest.loss), latest.accuracy);
+            }
+            
+            document.querySelector(".empty").textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+          }
+        } catch (e) {
+          console.error("Failed to fetch metrics:", e);
+          document.querySelector(".empty").textContent = "Error fetching live metrics. Using cached/demo view.";
+        }
+      }
+
       function setGauge(el, primary, secondary) {
         if (!el) return;
+        // Gaugify loss (lower is better, so we invert or cap it for the ring)
         el.style.setProperty("--primary", primary);
         el.style.setProperty("--secondary", secondary);
       }
 
-      setGauge(document.getElementById("gauge-loss-acc"), 0.73, 0.84);
-      setGauge(document.getElementById("gauge-auc-f1"), 0.88, 0.80);
-      setGauge(document.getElementById("gauge-prec-rec"), 0.79, 0.81);
+      // Initial load
+      updateMetrics();
+      // Poll every 10 seconds
+      setInterval(updateMetrics, 10000);
     </script>
   </body>
 </html>
