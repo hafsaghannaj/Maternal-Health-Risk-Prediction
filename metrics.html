@@ -329,6 +329,70 @@
         </div>
       </div>
       <div class="empty">Live metrics render in the Flask app.</div>
+
+      <div class="card" style="margin-top: 24px;">
+        <div class="tabs" style="background: none; padding: 0; margin-bottom: 20px;">
+          <h2 style="margin:0; font-size: 18px;">State Performance Explorer</h2>
+          <select id="state-selector"
+            style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--card-border); background: var(--stat-bg); color: var(--ink); font-family: inherit; font-weight: 700; cursor: pointer; outline: none;">
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MD">Maryland</option>
+            <option value="MA" selected>Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
+          </select>
+        </div>
+        <div style="height: 300px; width: 100%;">
+          <canvas id="state-chart" width="900" height="300"></canvas>
+        </div>
+        <div class="caption" id="state-caption" style="margin-top: 12px; font-size: 13px; color: var(--muted);">Select a
+          state to compare local maternal health outcomes against national baselines.</div>
+      </div>
     </div>
   </div>
   <script>
@@ -397,11 +461,73 @@
       el.style.setProperty("--secondary", secondary);
     }
 
+    let stateChart;
+    async function updateStateData() {
+      const state = document.getElementById("state-selector").value;
+      const caption = document.getElementById("state-caption");
+      caption.textContent = `Fetching latest AHR data for ${state}...`;
+
+      try {
+        // We fetch multiple maternal benchmarks for the selected state
+        const res = await fetch(`/api/v1/benchmarks/ahr?state=${state}&dataset=morbidity`);
+        const data = await res.json();
+
+        // If the combined dataset doesn't have the state, we try a default measure
+        let chartData = data;
+        if (!data || data.length === 0) {
+          const fallbackRes = await fetch(`/api/v1/benchmarks/ahr?measure=Severe Maternal Morbidity&state=${state}`);
+          chartData = await fallbackRes.json();
+        }
+
+        const labels = chartData.map(d => d.measure || "Maternal Health Indicator");
+        const values = chartData.map(d => parseFloat(d.value));
+
+        if (stateChart) {
+          stateChart.data.labels = labels;
+          stateChart.data.datasets[0].data = values;
+          stateChart.update();
+        } else {
+          const sCtx = document.getElementById("state-chart").getContext("2d");
+          stateChart = new Chart(sCtx, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: `Value for ${state}`,
+                data: values,
+                backgroundColor: 'rgba(58, 160, 255, 0.4)',
+                borderColor: '#3aa0ff',
+                borderWidth: 1,
+                borderRadius: 8
+              }]
+            },
+            options: {
+              responsive: false,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+                x: { grid: { display: false } }
+              }
+            }
+          });
+        }
+        caption.textContent = `Showing performance benchmarks for ${state} (Latest available AHR data).`;
+      } catch (e) {
+        console.error("State fetch failed", e);
+        caption.textContent = "Unable to fetch live state data. Please try again later.";
+      }
+    }
+
+    document.getElementById("state-selector").addEventListener("change", updateStateData);
+
     // Initial load
     updateMetrics();
-    // Poll every 10 seconds
+    updateStateData();
+    // Poll metrics every 10 seconds
     setInterval(updateMetrics, 10000);
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 
 </html>

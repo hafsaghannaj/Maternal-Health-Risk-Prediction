@@ -36,17 +36,26 @@ def get_ahr_benchmark():
         for m in measures:
             try:
                 res = run_async(client.get_measure_by_state(m))
-                # Search for national level data or take average
-                national = next((r.dict() for r in res if r.state in ["United States", "US"]), None)
-                if not national and res:
+                
+                # If a specific state is requested, look for it first
+                match = None
+                if state:
+                    # Try exact match or normalization
+                    match = next((r.dict() for r in res if r.state.upper() == state.upper() or r.state == state), None)
+                
+                # Fallback to national if no specific state match found or not requested
+                if not match:
+                    match = next((r.dict() for r in res if r.state in ["United States", "US"]), None)
+                    
+                if not match and res:
                     # Fallback to mean if no US entry
                     vals = [float(r.value) for r in res if r.value is not None]
                     mean_val = sum(vals) / len(vals) if vals else 0
-                    national = {"state": "US Average", "value": mean_val, "measure": m}
+                    match = {"state": "US Average", "value": mean_val, "measure": m}
                 
-                if national:
-                    national['measure'] = m # Ensure it has the measure name
-                    all_results.append(national)
+                if match:
+                    match['measure'] = m # Ensure it has the measure name
+                    all_results.append(match)
             except:
                 continue
         return jsonify(all_results)
