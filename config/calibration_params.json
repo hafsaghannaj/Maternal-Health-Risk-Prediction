@@ -1,0 +1,233 @@
+{
+    "age": {
+        "dist": "norm",
+        "mu": 27.83839,
+        "std": 5.689907926135537,
+        "source": "NCHS Natality"
+    },
+    "bmi": {
+        "dist": "norm",
+        "mu": 3.0089352,
+        "std": 1.2305774076428349,
+        "source": "NCHS Natality"
+    },
+    "gestationalAge": {
+        "dist": "norm",
+        "mu": 38.13163766622307,
+        "std": 2.1049836133992046,
+        "source": "NCHS Natality"
+    },
+    "previousPregnancies": {
+        "dist": "norm",
+        "mu": 0.70217,
+        "std": 0.8197483096048446,
+        "source": "NCHS Natality"
+    },
+    "systolicBP": {
+        "dist": "truncnorm",
+        "mu": 115,
+        "std": 12,
+        "bounds": [
+            90,
+            160
+        ],
+        "source": "Clinical Reference"
+    },
+    "diastolicBP": {
+        "dist": "truncnorm",
+        "mu": 75,
+        "std": 10,
+        "bounds": [
+            60,
+            100
+        ],
+        "source": "Clinical Reference"
+    },
+    "bloodGlucose": {
+        "dist": "truncnorm",
+        "mu": 85,
+        "std": 15,
+        "bounds": [
+            40,
+            200
+        ],
+        "source": "Clinical Reference"
+    },
+    "bodyTemp": {
+        "dist": "truncnorm",
+        "mu": 98.6,
+        "std": 0.4,
+        "bounds": [
+            97.0,
+            101.0
+        ],
+        "source": "Clinical Reference"
+    },
+    "heartRate": {
+        "dist": "truncnorm",
+        "mu": 80,
+        "std": 12,
+        "bounds": [
+            60,
+            120
+        ],
+        "source": "Clinical Reference"
+    },
+    "hemoglobin": {
+        "dist": "truncnorm",
+        "mu": 12.5,
+        "std": 1.2,
+        "bounds": [
+            8.0,
+            16.0
+        ],
+        "source": "Clinical Reference"
+    },
+    "plateletCount": {
+        "dist": "truncnorm",
+        "mu": 250,
+        "std": 60,
+        "bounds": [
+            50,
+            600
+        ],
+        "source": "Clinical Reference"
+    },
+    "wbcCount": {
+        "dist": "truncnorm",
+        "mu": 11,
+        "std": 3,
+        "bounds": [
+            4,
+            30
+        ],
+        "source": "Clinical Reference"
+    },
+    "creatinine": {
+        "dist": "truncnorm",
+        "mu": 0.6,
+        "std": 0.15,
+        "bounds": [
+            0.3,
+            1.5
+        ],
+        "source": "Clinical Reference"
+    },
+    "alt": {
+        "dist": "truncnorm",
+        "mu": 15,
+        "std": 8,
+        "bounds": [
+            3,
+            100
+        ],
+        "source": "Clinical Reference"
+    },
+    "ast": {
+        "dist": "truncnorm",
+        "mu": 15,
+        "std": 8,
+        "bounds": [
+            3,
+            100
+        ],
+        "source": "Clinical Reference"
+    },
+    "proteinUrine": {
+        "dist": "truncnorm",
+        "mu": 50,
+        "std": 40,
+        "bounds": [
+            0,
+            5000
+        ],
+        "source": "Clinical Reference"
+    },
+    "hba1c": {
+        "dist": "truncnorm",
+        "mu": 5.0,
+        "std": 0.4,
+        "bounds": [
+            4.0,
+            10.0
+        ],
+        "source": "Clinical Reference"
+    },
+    "cholesterol": {
+        "dist": "truncnorm",
+        "mu": 220,
+        "std": 40,
+        "bounds": [
+            120,
+            400
+        ],
+        "source": "Clinical Reference"
+    },
+    "ldl": {
+        "dist": "truncnorm",
+        "mu": 130,
+        "std": 30,
+        "bounds": [
+            60,
+            250
+        ],
+        "source": "Clinical Reference"
+    },
+    "hdl": {
+        "dist": "truncnorm",
+        "mu": 65,
+        "std": 15,
+        "bounds": [
+            30,
+            100
+        ],
+        "source": "Clinical Reference"
+    },
+    "triglycerides": {
+        "dist": "truncnorm",
+        "mu": 180,
+        "std": 60,
+        "bounds": [
+            50,
+            500
+        ],
+        "source": "Clinical Reference"
+    },
+    "ironLevel": {
+        "dist": "truncnorm",
+        "mu": 100,
+        "std": 30,
+        "bounds": [
+            30,
+            250
+        ],
+        "source": "Clinical Reference"
+    },
+    "vitaminD": {
+        "dist": "truncnorm",
+        "mu": 35,
+        "std": 10,
+        "bounds": [
+            10,
+            100
+        ],
+        "source": "Clinical Reference"
+    },
+    "thyroidTSH": {
+        "dist": "truncnorm",
+        "mu": 1.5,
+        "std": 0.8,
+        "bounds": [
+            0.1,
+            10.0
+        ],
+        "source": "Clinical Reference"
+    },
+    "_correlations": {
+        "bmi_to_systolicBP": 0.4,
+        "bmi_to_bloodGlucose": 0.35,
+        "preeclampsia_to_systolicBP_shift": 30,
+        "preeclampsia_to_proteinUrine_shift": 500,
+        "gestationalAge_to_bodyTemp": 0.1
+    }
+}

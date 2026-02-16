@@ -23,7 +23,6 @@ class MaternalRiskModel(nn.Module):
         out = self.relu(out)
         out = self.dropout(out)
         out = self.layer3(out)
-        out = self.sigmoid(out)
         return out
 
 def train_model(model, dataloader, criterion, optimizer, device, privacy_engine=None):
@@ -51,7 +50,7 @@ def train_model(model, dataloader, criterion, optimizer, device, privacy_engine=
         
         # Statistics
         running_loss += loss.item() * features.size(0)
-        predicted = (outputs.data > 0.5).float()
+        predicted = (torch.sigmoid(outputs.data) > 0.5).float()
         all_predictions.extend(predicted.cpu().numpy())
         all_labels.extend(labels.cpu().numpy())
     
@@ -82,8 +81,8 @@ def evaluate_model(model, dataloader, device):
             features, labels = features.to(device), labels.to(device)
             
             outputs = model(features)
-            probs = outputs.cpu().numpy()
-            predicted = (outputs.data > 0.5).float().cpu().numpy()
+            probs = torch.sigmoid(outputs).cpu().numpy()
+            predicted = (probs > 0.5).astype(float)
             
             all_probs.extend(probs)
             all_predictions.extend(predicted)

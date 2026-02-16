@@ -1,37 +1,121 @@
 import numpy as np
 import pandas as pd
+import json
+import os
+from scipy import stats as sp_stats
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import Dataset, DataLoader
 
+CALIBRATION_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', '..', 'config', 'calibration_params.json'
+)
+
+# Ordered feature names matching the 25-feature spec
+FEATURE_NAMES = [
+    'age', 'systolicBP', 'diastolicBP', 'bloodGlucose', 'bodyTemp',
+    'heartRate', 'bmi', 'hemoglobin', 'plateletCount', 'wbcCount',
+    'gestationalAge', 'creatinine', 'alt', 'ast', 'proteinUrine',
+    'hba1c', 'cholesterol', 'ldl', 'hdl', 'triglycerides',
+    'ironLevel', 'vitaminD', 'thyroidTSH', 'previousPregnancies',
+    'previousComplications'
+]
+
 class MaternalHealthDataset(Dataset):
     def __init__(self, features, labels):
         self.features = features
         self.labels = labels
-        
+
     def __len__(self):
         return len(self.features)
-    
+
     def __getitem__(self, idx):
         return self.features[idx], self.labels[idx]
 
+
+def _sample_feature(params, n, rng):
+    """Sample n values for a single feature from its calibrated distribution."""
+    dist = params.get('dist', 'norm')
+    mu = params['mu']
+    std = params['std']
+
+    if dist == 'truncnorm':
+        lo, hi = params['bounds']
+        a, b = (lo - mu) / std, (hi - mu) / std
+        return sp_stats.truncnorm.rvs(a, b, loc=mu, scale=std, size=n, random_state=rng)
+    else:
+        return rng.normal(mu, std, size=n)
+
+
+def _generate_calibrated(n_samples, random_state):
+    """Generate data using calibration_params.json from the NCHS pipeline."""
+    with open(CALIBRATION_PATH, 'r') as f:
+        cal = json.load(f)
+
+    rng = np.random.RandomState(random_state)
+    df = pd.DataFrame()
+
+    # 1. Sample each feature independently
+    for feat in FEATURE_NAMES:
+        if feat == 'previousComplications':
+            # Binary feature — not in calibration, generate ~12% prevalence
+            df[feat] = rng.binomial(1, 0.12, size=n_samples).astype(float)
+        elif feat in cal and isinstance(cal[feat], dict):
+            df[feat] = _sample_feature(cal[feat], n_samples, rng)
+        else:
+            df[feat] = rng.normal(0, 1, size=n_samples)
+
+    # 2. Apply correlation shifts from calibration
+    corr = cal.get('_correlations', {})
+    bmi_z = (df['bmi'] - df['bmi'].mean()) / df['bmi'].std()
+
+    if 'bmi_to_systolicBP' in corr:
+        df['systolicBP'] += corr['bmi_to_systolicBP'] * bmi_z * cal['systolicBP']['std']
+    if 'bmi_to_bloodGlucose' in corr:
+        df['bloodGlucose'] += corr['bmi_to_bloodGlucose'] * bmi_z * cal['bloodGlucose']['std']
+    if 'gestationalAge_to_bodyTemp' in corr:
+        ga_z = (df['gestationalAge'] - df['gestationalAge'].mean()) / df['gestationalAge'].std()
+        df['bodyTemp'] += corr['gestationalAge_to_bodyTemp'] * ga_z * cal['bodyTemp']['std']
+
+    # 3. Derive high_risk label from clinical thresholds
+    #    A patient is high-risk if ANY major risk factor is present
+    risk_score = (
+        (df['systolicBP'] > 140).astype(int) +
+        (df['diastolicBP'] > 90).astype(int) +
+        (df['bloodGlucose'] > 140).astype(int) +
+        (df['proteinUrine'] > 300).astype(int) +
+        (df['hba1c'] > 6.5).astype(int) +
+        (df['hemoglobin'] < 10).astype(int) +
+        (df['plateletCount'] < 100).astype(int) +
+        (df['creatinine'] > 1.0).astype(int) +
+        ((df['age'] > 35) & (df['previousComplications'] == 1)).astype(int)
+    )
+    df['high_risk'] = (risk_score >= 1).astype(int)
+
+    return df
+
+
 def generate_synthetic_maternal_data(n_samples=1000, n_features=25, random_state=42):
     """
-    Generate synthetic maternal health data with realistic features
+    Generate synthetic maternal health data.
+    Uses NCHS-calibrated distributions if calibration_params.json exists,
+    otherwise falls back to sklearn make_classification.
     """
-    # Base features
+    if os.path.exists(CALIBRATION_PATH):
+        return _generate_calibrated(n_samples, random_state)
+
+    # Fallback: uncalibrated sklearn-based generation
     X, y = make_classification(
         n_samples=n_samples,
         n_features=n_features,
         n_informative=15,
         n_redundant=5,
         n_clusters_per_class=2,
-        weights=[0.85, 0.15],  # 15% high risk
+        weights=[0.85, 0.15],
         random_state=random_state
     )
-    
-    # Create feature names that mimic real maternal health indicators
+
     feature_names = [
         'age', 'bmi', 'systolic_bp', 'diastolic_bp', 'heart_rate',
         'blood_sugar', 'hemoglobin', 'platelet_count', 'wbc_count',
@@ -40,20 +124,15 @@ def generate_synthetic_maternal_data(n_samples=1000, n_features=25, random_state
         'uric_acid', 'cholesterol', 'triglycerides', 'hdl', 'ldl',
         'previous_c_section', 'parity'
     ]
-    
-    # Create DataFrame
+
     df = pd.DataFrame(X, columns=feature_names[:n_features])
-    
-    # Make data more realistic by adjusting ranges
-    df['age'] = np.clip(df['age'] * 10 + 25, 18, 45)  # Age between 18-45
-    df['bmi'] = np.clip(df['bmi'] * 5 + 25, 18, 40)   # BMI between 18-40
+    df['age'] = np.clip(df['age'] * 10 + 25, 18, 45)
+    df['bmi'] = np.clip(df['bmi'] * 5 + 25, 18, 40)
     df['systolic_bp'] = np.clip(df['systolic_bp'] * 20 + 120, 90, 160)
     df['diastolic_bp'] = np.clip(df['diastolic_bp'] * 15 + 80, 60, 100)
     df['heart_rate'] = np.clip(df['heart_rate'] * 15 + 85, 60, 120)
-    
-    # Add target
     df['high_risk'] = y
-    
+
     return df
 
 def split_data_for_federated_learning(df, n_hospitals=3, test_size=0.2, random_state=42):
@@ -79,31 +158,45 @@ def split_data_for_federated_learning(df, n_hospitals=3, test_size=0.2, random_s
 
 def prepare_dataloaders(hospital_dfs, test_df, batch_size=32):
     """
-    Prepare PyTorch dataloaders for each hospital and test set
+    Prepare PyTorch dataloaders for each hospital and test set.
+    Features are standardized (zero mean, unit variance) using training statistics.
     """
+    # Compute standardization stats from all training data
+    all_train = pd.concat(hospital_dfs)
+    train_features_all = all_train.drop('high_risk', axis=1).values.astype(np.float32)
+    feat_mean = train_features_all.mean(axis=0)
+    feat_std = train_features_all.std(axis=0)
+    feat_std[feat_std == 0] = 1.0  # avoid division by zero
+
     hospital_dataloaders = []
-    
+
     for hospital_df in hospital_dfs:
-        # Separate features and labels
         features = hospital_df.drop('high_risk', axis=1).values.astype(np.float32)
+        features = (features - feat_mean) / feat_std
         labels = hospital_df['high_risk'].values.astype(np.float32)
-        
-        # Create dataset and dataloader
+
         dataset = MaternalHealthDataset(
             torch.tensor(features),
             torch.tensor(labels).unsqueeze(1)
         )
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
         hospital_dataloaders.append(dataloader)
-    
-    # Prepare test dataloader
+
+    # Prepare test dataloader (standardized with training stats)
     test_features = test_df.drop('high_risk', axis=1).values.astype(np.float32)
+    test_features = (test_features - feat_mean) / feat_std
     test_labels = test_df['high_risk'].values.astype(np.float32)
-    
+
     test_dataset = MaternalHealthDataset(
         torch.tensor(test_features),
         torch.tensor(test_labels).unsqueeze(1)
     )
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    
-    return hospital_dataloaders, test_dataloader
+
+    # Compute pos_weight for class imbalance
+    all_labels = all_train['high_risk']
+    n_pos = all_labels.sum()
+    n_neg = len(all_labels) - n_pos
+    pos_weight = float(n_neg / n_pos) if n_pos > 0 else 1.0
+
+    return hospital_dataloaders, test_dataloader, pos_weight

@@ -73,7 +73,7 @@ def health_check():
                     var(--bg);
         min-height: 100vh;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         padding: 32px;
       }
@@ -82,6 +82,7 @@ def health_check():
         display: grid;
         gap: 20px;
         grid-template-columns: 1.2fr 0.8fr;
+        margin-top: 5vh;
       }
       .card {
         background: var(--glass);
@@ -190,6 +191,7 @@ def health_check():
         padding: 16px;
         border-radius: 16px;
         background: var(--stat-bg);
+        min-height: 280px;
       }
       .chart-title {
         font-size: 14px;
@@ -200,6 +202,7 @@ def health_check():
       #training-chart {
         width: 100%;
         height: 220px;
+        display: block;
       }
       #chart-empty {
         margin-top: 8px;
@@ -250,7 +253,7 @@ def health_check():
         </div>
         <div class="chart-card">
           <div class="chart-title">Training Metrics</div>
-          <canvas id="training-chart"></canvas>
+          <canvas id="training-chart" width="500" height="220"></canvas>
           <div id="chart-empty">No training data yet.</div>
         </div>
       </div>
@@ -303,12 +306,17 @@ def health_check():
       updateToggleLabel();
 
       let trainingChart = null;
+      let lastStatsJSON = "";
+      let lastChartJSON = "";
 
       async function refreshStats() {
         try {
           const res = await fetch("/api/stats");
           if (!res.ok) return;
-          const data = await res.json();
+          const text = await res.text();
+          if (text === lastStatsJSON) return;
+          lastStatsJSON = text;
+          const data = JSON.parse(text);
           const predictions = document.getElementById("prediction-count");
           const rounds = document.getElementById("training-rounds");
           const latestModel = document.getElementById("latest-model");
@@ -337,13 +345,12 @@ def health_check():
       async function refreshChart() {
         try {
           const res = await fetch("/api/history");
-          if (!res.ok) {
-            return;
-          }
-          const payload = await res.json();
-          if (payload.status !== "success") {
-            return;
-          }
+          if (!res.ok) return;
+          const text = await res.text();
+          if (text === lastChartJSON) return;
+          lastChartJSON = text;
+          const payload = JSON.parse(text);
+          if (payload.status !== "success") return;
           const history = payload.history || [];
           const empty = document.getElementById("chart-empty");
           if (!history.length) {
@@ -383,8 +390,8 @@ def health_check():
                 ]
               },
               options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: false,
+                animation: false,
                 scales: {
                   y: {
                     position: "left",
@@ -404,7 +411,7 @@ def health_check():
             trainingChart.data.labels = labels;
             trainingChart.data.datasets[0].data = trainLoss;
             trainingChart.data.datasets[1].data = testAcc;
-            trainingChart.update();
+            trainingChart.update("none");
           }
         } catch (err) {
           // Ignore transient fetch errors.
@@ -413,8 +420,8 @@ def health_check():
 
       refreshStats();
       refreshChart();
-      setInterval(refreshStats, 3000);
-      setInterval(refreshChart, 5000);
+      setInterval(refreshStats, 5000);
+      setInterval(refreshChart, 10000);
     </script>
   </body>
 </html>
@@ -1022,12 +1029,12 @@ def initialize_federated_learning():
         )
         
         # Prepare dataloaders
-        hospital_dataloaders, test_dataloader = prepare_dataloaders(
+        hospital_dataloaders, test_dataloader, pos_weight = prepare_dataloaders(
             hospital_dfs,
             test_df,
             batch_size=config.BATCH_SIZE
         )
-        
+
         # Create hospital nodes
         hospital_nodes = []
         for i, dataloader in enumerate(hospital_dataloaders):
@@ -1035,7 +1042,8 @@ def initialize_federated_learning():
                 node_id=i,
                 dataloader=dataloader,
                 device=config.DEVICE,
-                config=config
+                config=config,
+                pos_weight=pos_weight
             )
             hospital_nodes.append(hospital)
         
@@ -1170,8 +1178,8 @@ def predict_risk():
         # Make prediction
         coordinator.global_model.eval()
         with torch.no_grad():
-            prediction = coordinator.global_model(features)
-            risk_score = prediction.item()
+            logits = coordinator.global_model(features)
+            risk_score = torch.sigmoid(logits).item()
         risk_category = 'High Risk' if risk_score > 0.5 else 'Low Risk'
         record_prediction(risk_score, risk_category)
         

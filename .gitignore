@@ -1,6 +1,8 @@
-.venv/
+venv/
+data/nchs/
+*.zip
 __pycache__/
 *.pyc
+.DS_Store
 artemis.sqlite3
 saved_models/
-.DS_Store

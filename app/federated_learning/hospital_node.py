@@ -4,14 +4,17 @@ import copy
 from app.models.model_utils import train_model, evaluate_model
 
 class HospitalNode:
-    def __init__(self, node_id, dataloader, device, config):
+    def __init__(self, node_id, dataloader, device, config, pos_weight=None):
         self.node_id = node_id
         self.dataloader = dataloader
         self.device = device
         self.config = config
         self.model = None
         self.optimizer = None
-        self.criterion = nn.BCELoss()
+        if pos_weight is not None:
+            self.criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([pos_weight], device=device))
+        else:
+            self.criterion = nn.BCEWithLogitsLoss()
         
     def initialize_model(self, model):
         """Initialize with the global model"""

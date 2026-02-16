@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from app.api.endpoints import api_bp
+from app.api.data_routes import data_bp
 from config import config
 
 
@@ -10,6 +11,7 @@ def create_app():
 
     # Register blueprints
     app.register_blueprint(api_bp)
+    app.register_blueprint(data_bp)
 
     return app
 
