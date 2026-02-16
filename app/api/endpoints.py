@@ -786,19 +786,36 @@ def metrics_page():
         border-radius: 50%;
         background:
           conic-gradient(from -90deg, rgba(109, 211, 160, 0.35) calc(var(--secondary, 0) * 1turn), transparent 0),
-          conic-gradient(from -90deg, rgba(58, 160, 255, 0.5) calc(var(--primary, 0) * 1turn), transparent 0),
-          repeating-conic-gradient(rgba(148, 163, 184, 0.15) 0deg, rgba(148, 163, 184, 0.15) 1.5deg, transparent 1.5deg, transparent 12deg),
-          radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 55%, rgba(255, 255, 255, 0.2) 100%);
+          conic-gradient(from -90deg, rgba(58, 160, 255, 0.5) calc(var(--primary, 0) * 1turn), transparent 0);
         box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.05);
-        transition: background 1s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .orbital::before {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background: 
+          repeating-conic-gradient(rgba(148, 163, 184, 0.15) 0deg, rgba(148, 163, 184, 0.15) 1.5deg, transparent 1.5deg, transparent 12deg);
+        mask: radial-gradient(circle at center, black 0%, black 70%, transparent 100%);
+        -webkit-mask: radial-gradient(circle at center, black 0%, black 70%, transparent 100%);
+        animation: spin-slow 60s linear infinite;
+        z-index: 0;
       }
       [data-theme="dark"] .orbital {
         background:
           conic-gradient(from -90deg, rgba(109, 211, 160, 0.35) calc(var(--secondary, 0) * 1turn), transparent 0),
-          conic-gradient(from -90deg, rgba(106, 169, 255, 0.55) calc(var(--primary, 0) * 1turn), transparent 0),
-          repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0deg, rgba(255, 255, 255, 0.08) 1.5deg, transparent 1.5deg, transparent 12deg),
-          radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 55%, rgba(15, 23, 42, 0.2) 100%);
+          conic-gradient(from -90deg, rgba(106, 169, 255, 0.55) calc(var(--primary, 0) * 1turn), transparent 0);
         box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3);
+      }
+      [data-theme="dark"] .orbital::before {
+        background: repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0deg, rgba(255, 255, 255, 0.08) 1.5deg, transparent 1.5deg, transparent 12deg);
+      }
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
       .orbit {
         position: absolute;
