@@ -747,32 +747,24 @@ def metrics_page():
         text-decoration: none;
         font-size: 13px;
         font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 999px;
-        color: var(--muted);
-      }
-      .tab.active {
-        color: var(--ink);
-        background: rgba(58, 160, 255, 0.16);
-      }
-      .theme-toggle {
-        border: none;
-        background: var(--stat-bg);
-        color: var(--ink);
-        font-size: 12px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 999px;
-        cursor: pointer;
-      }
-      h1 { margin: 0; font-size: 26px; }
-      .muted { color: var(--muted); font-size: 14px; margin-top: 6px; }
-      .grid {
-        margin-top: 18px;
-        display: grid;
-        gap: 18px;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      }
+      .shell { width: min(980px, 100%); margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1.2fr 0.8fr; }
+      .card { background: var(--glass); backdrop-filter: blur(18px); border-radius: 20px; padding: 28px 30px; box-shadow: var(--shadow); border: 1px solid var(--card-border); animation: rise 600ms ease-out forwards; }
+      .card:nth-child(2) { animation-delay: 120ms; }
+      h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: 0.2px; }
+      .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(58, 160, 255, 0.12); color: #1b4b91; font-weight: 600; font-size: 13px; margin-bottom: 12px; }
+      .muted { color: var(--muted); font-size: 14px; margin-top: 8px; }
+      .mini { display: grid; gap: 12px; }
+      .stat { padding: 14px 16px; border-radius: 14px; background: var(--stat-bg); }
+      .stat h3 { margin: 0 0 6px; font-size: 14px; color: var(--muted); }
+      .stat p { margin: 0; font-weight: 700; }
+      .badge { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 0 6px rgba(58, 160, 255, 0.1); }
+      .grid { margin-top: 18px; display: grid; gap: 18px; grid-template-columns: 1fr; }
+      [data-theme="dark"] .pill { color: var(--accent); background: rgba(58, 160, 255, 0.08); }
+      .tabs { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 6px; border-radius: 999px; background: var(--row-bg); }
+      .tab-group { display: inline-flex; gap: 8px; }
+      .tab { text-decoration: none; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+      .tab.active { color: var(--ink); background: rgba(58, 160, 255, 0.16); }
+      .theme-toggle { border: none; background: var(--stat-bg); color: var(--ink); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
       .orbital {
         position: relative;
         width: 250px;
@@ -882,6 +874,7 @@ def metrics_page():
           </div>
           <button class="theme-toggle" id="theme-toggle" type="button">Dark</button>
         </div>
+        <div class="pill"><span class="badge"></span>Live: Metrics Observatory</div>
         <h1>Metrics Observatory</h1>
         <div class="muted">Orbiting indicators and radial spokes for the latest training results.</div>
         <div class="grid">
@@ -928,69 +921,42 @@ def metrics_page():
             </div>
           </div>
         </div>
-        <div class="empty" id="metrics-empty">No training history yet. Run /api/initialize then /api/train.</div>
+        <div class="empty" id="metrics-empty">Live metrics render in the Flask app.</div>
+
+        <div class="card" style="margin-top: 24px;">
+          <div class="tabs" style="background: none; padding: 0; margin-bottom: 20px;">
+            <h2 style="margin:0; font-size: 18px;">State Performance Explorer</h2>
+            <select id="state-selector" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--card-border); background: var(--stat-bg); color: var(--ink); font-family: inherit; font-weight: 700; cursor: pointer; outline: none;">
+              <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option>
+              <option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option>
+              <option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option>
+              <option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option>
+              <option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option>
+              <option value="MA" selected>Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option>
+              <option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option>
+              <option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option>
+              <option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option>
+              <option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option>
+              <option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option>
+              <option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option>
+              <option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+            </select>
+          </div>
+          <div style="height: 300px; width: 100%;">
+            <canvas id="state-chart" width="900" height="300"></canvas>
+          </div>
+          <div class="caption" id="state-caption" style="margin-top: 12px; font-size: 13px; color: var(--muted); padding: 10px;">Select a state to compare local maternal health outcomes against national baselines.</div>
+        </div>
       </div>
 
-      <div class="card" style="margin-top: 24px;">
-        <div class="tabs" style="background: none; padding: 0; margin-bottom: 20px;">
-          <h2 style="margin:0; font-size: 18px;">State Performance Explorer</h2>
-          <select id="state-selector" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--card-border); background: var(--stat-bg); color: var(--ink); font-family: inherit; font-weight: 700; cursor: pointer; outline: none;">
-            <option value="AL">Alabama</option>
-            <option value="AK">Alaska</option>
-            <option value="AZ">Arizona</option>
-            <option value="AR">Arkansas</option>
-            <option value="CA">California</option>
-            <option value="CO">Colorado</option>
-            <option value="CT">Connecticut</option>
-            <option value="DE">Delaware</option>
-            <option value="FL">Florida</option>
-            <option value="GA">Georgia</option>
-            <option value="HI">Hawaii</option>
-            <option value="ID">Idaho</option>
-            <option value="IL">Illinois</option>
-            <option value="IN">Indiana</option>
-            <option value="IA">Iowa</option>
-            <option value="KS">Kansas</option>
-            <option value="KY">Kentucky</option>
-            <option value="LA">Louisiana</option>
-            <option value="ME">Maine</option>
-            <option value="MD">Maryland</option>
-            <option value="MA" selected>Massachusetts</option>
-            <option value="MI">Michigan</option>
-            <option value="MN">Minnesota</option>
-            <option value="MS">Mississippi</option>
-            <option value="MO">Missouri</option>
-            <option value="MT">Montana</option>
-            <option value="NE">Nebraska</option>
-            <option value="NV">Nevada</option>
-            <option value="NH">New Hampshire</option>
-            <option value="NJ">New Jersey</option>
-            <option value="NM">New Mexico</option>
-            <option value="NY">New York</option>
-            <option value="NC">North Carolina</option>
-            <option value="ND">North Dakota</option>
-            <option value="OH">Ohio</option>
-            <option value="OK">Oklahoma</option>
-            <option value="OR">Oregon</option>
-            <option value="PA">Pennsylvania</option>
-            <option value="RI">Rhode Island</option>
-            <option value="SC">South Carolina</option>
-            <option value="SD">South Dakota</option>
-            <option value="TN">Tennessee</option>
-            <option value="TX">Texas</option>
-            <option value="UT">Utah</option>
-            <option value="VT">Vermont</option>
-            <option value="VA">Virginia</option>
-            <option value="WA">Washington</option>
-            <option value="WV">West Virginia</option>
-            <option value="WI">Wisconsin</option>
-            <option value="WY">Wyoming</option>
-          </select>
-        </div>
-        <div style="height: 300px; width: 100%;">
-          <canvas id="state-chart" width="900" height="300"></canvas>
-        </div>
-        <div class="caption" id="state-caption" style="margin-top: 12px; font-size: 13px; color: var(--muted); padding: 10px;">Select a state to compare local maternal health outcomes against national baselines.</div>
+      <div class="card mini">
+        <div class="stat"><h3>Device</h3><p>CPU</p></div>
+        <div class="stat"><h3>Hospitals</h3><p>3</p></div>
+        <div class="stat"><h3>Features</h3><p>25</p></div>
+        <div class="stat"><h3>Predictions served</h3><p id="pred-count">128</p></div>
+        <div class="stat"><h3>Training rounds</h3><p id="round-count">5</p></div>
+        <div class="stat"><h3>Latest model</h3><p id="model-ver">v3</p><span class="note">Download requires backend</span></div>
+        <div class="stat"><h3>NCHS Calibration</h3><p id="calib-status">Checking...</p><span class="note">Based on 2022 dataset</span></div>
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1024,58 +990,56 @@ def metrics_page():
         return Number(value).toFixed(3);
       }
 
-      let lastMetricsJSON = "";
-
       async function refreshMetrics() {
         try {
           const res = await fetch("/api/history");
           if (!res.ok) return;
           const text = await res.text();
-          if (text === lastMetricsJSON) return;
-          lastMetricsJSON = text;
-          const payload = JSON.parse(text);
-          if (payload.status !== "success") return;
-          const history = payload.history || [];
-          const empty = document.getElementById("metrics-empty");
-          if (!history.length) {
-            if (empty) empty.style.display = "block";
-            return;
+          if (text !== lastMetricsJSON) {
+            lastMetricsJSON = text;
+            const payload = JSON.parse(text);
+            const history = payload.history || [];
+            const empty = document.getElementById("metrics-empty");
+            if (history.length > 0) {
+              if (empty) empty.style.display = "none";
+              const latest = history[history.length - 1];
+              const trainLoss = Number(latest.train_loss);
+              const testAcc = Number(latest.test_accuracy);
+              const auc = Number(latest.test_auc);
+              const f1 = Number(latest.test_f1);
+              const precision = Number(latest.test_precision);
+              const recall = Number(latest.test_recall);
+
+              setGauge(document.getElementById("gauge-loss-acc"), 1/(1+trainLoss), testAcc);
+              setGauge(document.getElementById("gauge-auc-f1"), auc, f1);
+              setGauge(document.getElementById("gauge-prec-rec"), precision, recall);
+
+              document.getElementById("loss-value").textContent = formatNumber(trainLoss);
+              document.getElementById("acc-value").textContent = "Test Accuracy: " + formatNumber(testAcc);
+              document.getElementById("auc-value").textContent = formatNumber(auc);
+              document.getElementById("f1-value").textContent = "F1: " + formatNumber(f1);
+              document.getElementById("precision-value").textContent = formatNumber(precision);
+              document.getElementById("recall-value").textContent = "Recall: " + formatNumber(recall);
+              document.getElementById("round-count").textContent = history.length;
+            }
           }
-          if (empty) empty.style.display = "none";
-          const latest = history[history.length - 1];
 
-          const trainLoss = Number(latest.train_loss);
-          const testAcc = Number(latest.test_accuracy);
-          const auc = Number(latest.test_auc);
-          const f1 = Number(latest.test_f1);
-          const precision = Number(latest.test_precision);
-          const recall = Number(latest.test_recall);
+          // Fetch System Stats
+          const statsRes = await fetch('/api/stats');
+          const stats = await statsRes.json();
+          if (stats) {
+            document.getElementById("pred-count").textContent = stats.predictions_served || 0;
+            document.getElementById("model-ver").textContent = stats.latest_model_version ? stats.latest_model_version.split('_v')[1] || stats.latest_model_version : "v3";
+          }
 
-          const lossGauge = document.getElementById("gauge-loss-acc");
-          const aucGauge = document.getElementById("gauge-auc-f1");
-          const precGauge = document.getElementById("gauge-prec-rec");
-
-          const lossNormalized = 1 / (1 + (Number.isNaN(trainLoss) ? 0 : trainLoss));
-          setGauge(lossGauge, lossNormalized, Number.isNaN(testAcc) ? 0 : testAcc);
-          setGauge(aucGauge, Number.isNaN(auc) ? 0 : auc, Number.isNaN(f1) ? 0 : f1);
-          setGauge(precGauge, Number.isNaN(precision) ? 0 : precision, Number.isNaN(recall) ? 0 : recall);
-
-          const lossValue = document.getElementById("loss-value");
-          const accValue = document.getElementById("acc-value");
-          const aucValue = document.getElementById("auc-value");
-          const f1Value = document.getElementById("f1-value");
-          const precisionValue = document.getElementById("precision-value");
-          const recallValue = document.getElementById("recall-value");
-
-          if (lossValue) lossValue.textContent = formatNumber(trainLoss);
-          if (accValue) accValue.textContent = "Test Accuracy: " + formatNumber(testAcc);
-          if (aucValue) aucValue.textContent = formatNumber(auc);
-          if (f1Value) f1Value.textContent = "F1: " + formatNumber(f1);
-          if (precisionValue) precisionValue.textContent = formatNumber(precision);
-          if (recallValue) recallValue.textContent = "Recall: " + formatNumber(recall);
-        } catch (err) {
-          // Ignore transient fetch errors.
-        }
+          // Fetch Calibration Status
+          const calibRes = await fetch('/api/v1/data/calibration-status');
+          const calib = await calibRes.json();
+          if (calib && calib.status === 'success') {
+            document.getElementById('calib-status').textContent = 'Live & Active';
+            document.getElementById('calib-status').style.color = '#6dd3a0';
+          }
+        } catch (err) {}
       }
 
       let stateChart;
